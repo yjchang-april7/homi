@@ -37,7 +37,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit tests / coverage reports
 htmlcov/
 .tox/
 .nox/
@@ -167,7 +167,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit tests / coverage reports
 htmlcov/
 .tox/
 .nox/
@@ -347,7 +347,7 @@ bld/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
-# MSTest test Results
+# MSTest tests Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
@@ -671,7 +671,7 @@ MigrationBackup/
 *.so
 *.dylib
 
-# Test binary, built with `go test -c`
+# Test binary, built with `go tests -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE

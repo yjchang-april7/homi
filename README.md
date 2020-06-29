@@ -6,13 +6,9 @@ micro grpc framework like flask
 - [x] use decorator pattern to connect service method
 - [x] auto parse request data to dict, you don't use grpc request object
 - [x] auto set argument what you want
+- [x] support all grpc service type(unary-unary,unary-stream,stream-unary,stream-stream)
 - [ ] you just return dict type, not grpc object
 
-## Support GRPC
-- [x] unary-unary
-- [x] unary-stream
-- [x] stream-unary
-- [ ] stream-stream
 
 ## Example
 check [example](/example)
