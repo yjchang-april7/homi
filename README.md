@@ -30,5 +30,10 @@ def SayHello(name, **kwargs):
 - 0.0.1 (init project)
     - run server using cli
     - helloworld example
-
+- 0.0.3
+    - support all method type
+    - add flak8 lint
+    - add test case
+    - \#9 auto parse response message
+  
 
