@@ -24,7 +24,7 @@ class HomiTestCase(unittest.TestCase):
         while not finish:
             try:
                 result.append(method.take_response())
-            except Exception as e:
+            except Exception:
                 finish = True
         return result
 

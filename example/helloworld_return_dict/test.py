@@ -16,9 +16,7 @@ class GreeterTestCase(HomiTestCase):
         name = "tom"
         request = HelloRequest(name=name)
         method = server.invoke_unary_unary(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR
-                .services_by_name['Greeter']
-                .methods_by_name['SayHello']),
+            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHello']),
             invocation_metadata={},
             request=request, timeout=1)
 
@@ -31,9 +29,7 @@ class GreeterTestCase(HomiTestCase):
         name = "groupA"
         request = HelloRequest(name=name)
         method = server.invoke_unary_stream(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR
-                .services_by_name['Greeter']
-                .methods_by_name['SayHelloGroup']),
+            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHelloGroup']),
             invocation_metadata={},
             request=request, timeout=1)
 
@@ -50,9 +46,7 @@ class GreeterTestCase(HomiTestCase):
     def test_hello_everyone(self):
         server = self.get_test_server()
         method = server.invoke_stream_unary(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR
-                .services_by_name['Greeter']
-                .methods_by_name['HelloEveryone']),
+            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['HelloEveryone']),
             invocation_metadata={},
             timeout=1
         )
@@ -67,9 +61,8 @@ class GreeterTestCase(HomiTestCase):
     def test_say_hello_one_by_one(self):
         server = self.get_test_server()
         method = server.invoke_stream_stream(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR
-                .services_by_name['Greeter']
-                .methods_by_name['SayHelloOneByOne']),
+            method_descriptor=(
+                helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHelloOneByOne']),
             invocation_metadata={},
             timeout=1
         )

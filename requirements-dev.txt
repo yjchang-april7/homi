@@ -3,3 +3,5 @@ grpcio-testing
 setuptools
 wheel
 twine
+nose
+flake8
