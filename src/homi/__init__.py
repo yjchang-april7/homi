@@ -1,3 +1,5 @@
-from .registries import get_default_registry,register
+from .registries import get_default_registry, register
 from .server import Server
-__version__ = "0.0.2"
+from .test_case import HomiTestCase
+
+__version__ = "0.0.3"

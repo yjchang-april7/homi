@@ -1,7 +1,5 @@
-import homi
-
-import helloworld_pb2
-import helloworld_pb2_grpc
+from . import helloworld_pb2, helloworld_pb2_grpc
+from ... import homi
 
 
 # unary-unary method

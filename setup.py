@@ -10,6 +10,7 @@ setup(
     version=version,
     install_requires=[
         "grpcio>=1.30.0",
+        "grpcio_testing>=1.30.0",
         "grpcio-reflection>=1.30.0",
         "google-api-core>=1.21.0",
         "click>=7.1.2"

@@ -1,4 +1,7 @@
 -r requirements.txt
+grpcio-testing
 setuptools
 wheel
 twine
+nose
+flake8
