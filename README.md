@@ -1,6 +1,11 @@
 # homi
 micro grpc framework like flask
 
+## install
+```shell script
+pip install homi
+```
+
 ## Feature
 - [x] config less to run server
 - [x] use decorator pattern to connect service method
@@ -32,6 +37,21 @@ def SayHello(name,**kwargs): # auto deserialize request to dict
     print(f"{name} is request SayHello")
     return {"message":f"Hello {name}!"} # auto serialize dict to response
 
+```
+
+## run server
+```shell script
+# if app file name is app.py
+homi run
+
+# run ohter app file
+homi run other_app.py
+
+# change port
+homi run -p 50055
+
+# change total worker
+homi run -w 5
 ```
 
 ## Change Logs
