@@ -11,7 +11,7 @@ micro grpc framework like flask
 
 
 ## Example
-check [example](/example)
+check more [example](https://github.com/spaceone-dev/homi/tree/master/example)
 
 ```python
 import homi
@@ -20,10 +20,18 @@ import helloworld_pb2
 import helloworld_pb2_grpc
 
 
-@homi.register(helloworld_pb2_grpc, 'Greeter')
-def SayHello(name, **kwargs):
+@homi.register(helloworld_pb2_grpc, 'Greeter',method='SayHello')
+def hello(request,context):
+    print(f"{request.name} is request SayHello")
+    return helloworld_pb2.HelloReply(message=f"Hello {request.name}!")
+
+# or you can do just like this! It's easy!!
+
+@homi.register(helloworld_pb2_grpc, 'Greeter') # auto find same method name
+def SayHello(name,**kwargs): # auto deserialize request to dict
     print(f"{name} is request SayHello")
-    return helloworld_pb2.HelloReply(message=f"Hello {name}!")
+    return {"message":f"Hello {name}!"} # auto serialize dict to response
+
 ```
 
 ## Change Logs
