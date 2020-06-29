@@ -8,6 +8,13 @@ micro grpc framework like flask
 - [x] auto set argument what you want
 - [ ] you just return dict type, not grpc object
 
+## Support GRPC
+- [x] unary-unary
+- [x] unary-stream
+- [x] stream-unary
+- [ ] stream-stream
+
+## Example
 check [example](/example)
 
 ```python

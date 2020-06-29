@@ -1,11 +1,22 @@
-import json
+from collections import abc
 from functools import partial
 from inspect import signature
-from typing import Dict, Callable, TypeVar, List
+from typing import Dict, Callable, TypeVar, List, Any
 
 from google.protobuf import json_format
 
 Package = TypeVar('Package')
+
+
+class StreamMessage(Dict):
+    raw_data = None
+
+
+def stream_request(request_iterator):
+    for req in request_iterator:
+        msg = StreamMessage(**json_format.MessageToDict(req))
+        msg.raw_data = req
+        yield msg
 
 
 class GrpcService:
@@ -23,17 +34,17 @@ class GrpcService:
         print(parameters)
 
         def decorator(self, request, context):
-            print('in wraper')
-            print(f"{request=}")
-            print(f"{context=}")
-            request = json.loads(json_format.MessageToJson(request))
-            print(request)
-            args = {}
-            for p in parameters:
-                args[p] = request.get(p, None)
-            print(args)
+            if isinstance(request, abc.Iterable):
+                return func(stream_request(request), context)
+            else:
+                request = json_format.MessageToDict(request)
+                print(request)
+                args = {}
+                for p in parameters:
+                    args[p] = request.get(p, None)
+                print(args)
 
-            return func(**args, request=request, context=context)
+                return func(**args, request=request, context=context)
 
         return decorator
 
@@ -68,8 +79,8 @@ class GrpcServiceRegister:
                 service.add_to_server(server)
 
     @property
-    def service_names(self) -> List[str]:
-        names = []
+    def services(self) -> List[Any]:
+        svcs = []
         for module, services in self.files.items():
             try:
                 pb2_name = [k for k in module.__dict__.keys() if k[-5:] == '__pb2'][0]
@@ -77,8 +88,25 @@ class GrpcServiceRegister:
             except Exception as e:
                 raise Exception(f"can't find pb2 file in {module} grpc file")
             for service in services.keys():
-                names.append(pb2.DESCRIPTOR.services_by_name[service].full_name)
-        return names
+                svcs.append(pb2.DESCRIPTOR.services_by_name[service])
+        return svcs
+
+    @property
+    def test_servicers(self) -> Dict[Any, Any]:  # for testcase
+        servicers = {}
+        for module, services in self.files.items():
+            try:
+                pb2_name = [k for k in module.__dict__.keys() if k[-5:] == '__pb2'][0]
+                pb2 = getattr(module, pb2_name)
+            except Exception as e:
+                raise Exception(f"can't find pb2 file in {module} grpc file")
+            for name, service in services.items():
+                servicers[pb2.DESCRIPTOR.services_by_name[name]] = service.make_servicer()
+        return servicers
+
+    @property
+    def service_names(self) -> List[str]:
+        return [svc.full_name for svc in self.services]
 
 
 _default_registry = None
