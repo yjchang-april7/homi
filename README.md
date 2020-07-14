@@ -1,4 +1,10 @@
 # homi
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/homi?style=flat-square)](https://pypi.org/project/homi)
+[![PyPI](https://img.shields.io/pypi/v/homi?style=flat-square)](https://pypi.org/project/homi)
+[![PyPI download month](https://img.shields.io/pypi/dm/homi?style=flat-square)](https://pypi.org/project/homi)
+[![codecov](https://codecov.io/gh/spaceone-dev/homi/branch/master/graph/badge.svg)](https://codecov.io/gh/spaceone-dev/homi)
+[![HitCount](http://hits.dwyl.com/spaceone-dev/homi.svg)](http://hits.dwyl.com/spaceone-dev/homi)
+
 micro grpc framework like flask
 
 ## install
