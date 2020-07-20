@@ -1,7 +1,9 @@
 import unittest
+from typing import Any, Dict
 
 import grpc_testing
 
+from . import Server
 from .registries import get_default_registry
 
 
@@ -13,7 +15,8 @@ class HomiTestCase(unittest.TestCase):
         if not self._test_server:
             register = get_default_registry()
             self._test_server = grpc_testing.server_from_dictionary(
-                register.test_servicers, grpc_testing.strict_real_time())
+                register.test_servicers, grpc_testing.strict_real_time()
+            )
 
         return self._test_server
 
@@ -32,3 +35,40 @@ class HomiTestCase(unittest.TestCase):
     def send_request_all(method, requests):
         [method.send_request(req) for req in requests]
         method.requests_closed()
+
+
+class HomiRealServerTestCase(unittest.TestCase):
+    app = None
+    default_server_config = {
+        "host": "localhost",
+        "port": '5999'
+    }
+    test_server_config: Dict[str, Any] = {}
+    test_server = None
+
+    def get_server_config(self, merge_config: dict = None):
+        config = merge_config or {}
+        return {
+            **self.default_server_config,
+            **self.test_server_config,
+            **config,
+        }
+
+    def server_restart(self, merge_config: dict = None):
+        self.run_real_server(merge_config)
+
+    def run_real_server(self, merge_config: dict = None):
+        config = merge_config or {}
+        if self.test_server:
+            try:
+                self.test_server.stop()
+            except Exception:
+                pass
+        self.test_server = Server(**self.get_server_config(config))
+        self.test_server.run(wait=False)
+
+    def setUp(self):
+        self.run_real_server()
+
+    def tearDown(self):
+        self.test_server.stop()
