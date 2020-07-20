@@ -60,6 +60,11 @@ homi run -p 50055
 homi run -w 5
 ```
 
+
+## Relation Project
+- [grpc_requests](https://github.com/spaceone-dev/grpc_requests) : GRPC for Humans! python grpc reflection support client
+
+
 ## Change Logs
 - 0.0.1 (init project)
     - run server using cli
@@ -69,5 +74,9 @@ homi run -w 5
     - add flak8 lint
     - add test case
     - \#9 auto parse response message
+- 0.0.4.alpha
+    - add real server testcase
+    - support grpc-health
+    
   
 
