@@ -38,9 +38,9 @@ class Server:
         if wait:
             self.wait_for_termination()
 
-    def stop(self):
+    def stop(self, grace=None):
         if self.server:
-            self.server.stop()
+            self.server.stop(grace)
 
     def wait_for_termination(self):
         if self.server:
