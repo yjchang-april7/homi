@@ -43,7 +43,6 @@ class GrpcService:
     def warp_handler(self, func, message):
         sig = signature(func)
         parameters = [k for k, v in sig._parameters.items() if v.kind.value == 1]
-        print(parameters)
 
         def decorator(self, request, context):
             # parse request
@@ -102,7 +101,6 @@ class GrpcServiceRegister:
         self.pkg_pb2: Dict[Package, List[types.ModuleType]] = {}
 
     def add(self, pkg, service, method, func):
-        print(pkg, service, method)
         if not self.files.get(pkg):
             self.files[pkg] = {}
             self.pkg_pb2[pkg] = find_pb2_module(pkg)

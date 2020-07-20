@@ -14,6 +14,7 @@ def cli():
 @click.option("--host", "-h", default="127.0.0.1", help="The interface to bind to.")
 @click.option("--port", "-p", default='50051', help="The port to bind to.")
 @click.option('--worker', '-w', default=10, type=int)
+@click.option('--health', default=True, type=bool)
 # @click.option(
 #     "--reload/--no-reload",
 #     default=None,
@@ -25,7 +26,7 @@ def cli():
     default=False,
     help="Server Debug Mode",
 )
-def run_command(file, host, port, worker, debug):
+def run_command(file, host, port, worker, health, debug):
     sys.path.append(dirname(file))
     import importlib.util
 
@@ -34,7 +35,7 @@ def run_command(file, host, port, worker, debug):
     spec.loader.exec_module(foo)
 
     from .server import Server
-    Server(host, port, worker).run()
+    Server(host, port, worker, health).run()
 
 
 cli.add_command(run_command)
