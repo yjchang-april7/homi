@@ -73,7 +73,8 @@ def add_GreeterServicer_to_server(servicer, server):
                     request_deserializer=helloworld__pb2.HelloRequest.FromString,
                     response_serializer=helloworld__pb2.HelloReply.SerializeToString,
             ),
-            'SayHelloGroup': grpc.unary_stream_rpc_method_handler(
+            'SayHelloGroup': grpc.unary_strea
+                              m_rpc_method_handler(
                     servicer.SayHelloGroup,
                     request_deserializer=helloworld__pb2.HelloRequest.FromString,
                     response_serializer=helloworld__pb2.HelloReply.SerializeToString,

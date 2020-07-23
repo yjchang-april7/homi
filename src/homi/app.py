@@ -1,13 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Dict, Union
+from typing import List, Callable, Dict, Union, Generic, TypeVar
 
 import grpc
 from google.protobuf.descriptor import ServiceDescriptor
 
-from src.homi.config import MergeConfig
-from src.homi.exception import ServiceNotFound, RegisterError
-from src.homi.proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler
+from .config import MergeConfig
+from .exception import ServiceNotFound, RegisterError
+from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler
 
 
 def NotImplementedMethod(request, context):
@@ -26,12 +26,15 @@ class BaseApp:
         return self._config
 
 
-class BaseService(ABC):
+ConfigType = TypeVar('ConfigType')
+
+
+class BaseService(Generic[ConfigType], ABC):
     def __init__(
             self,
             service_descriptor: ServiceDescriptor,
             config_class=MergeConfig,
-            default_config=None,
+            default_config: ConfigType = None,
             config_name=None,
             **kwargs
     ):
@@ -70,20 +73,20 @@ class BaseService(ABC):
         self._config = klass(config_name, default_config)
 
     @property
-    def config(self) -> dict:
+    def config(self) -> ConfigType:
         if not self.is_registered:
-            logging.warning('your get config data before service registered')
+            logging.warning('your get config data before extend registered')
         return self._config.get_config()
 
     @property
     def app(self):
         if not self.is_registered:
-            raise ValueError('you can not get app object before service registered')
+            raise ValueError('you can not get app object before extend registered')
         return self._app
 
     @property
     def is_registered(self) -> bool:
-        if not self._is_registered and self.app:
+        if not self._is_registered and self._app:
             self._is_registered = True
         return self._is_registered
 
@@ -111,7 +114,7 @@ class BaseService(ABC):
         pass
 
 
-class Service(BaseService):
+class Service(Generic[ConfigType], BaseService[ConfigType]):
 
     def __init__(self, service_descriptor: ServiceDescriptor, config_class=MergeConfig, default_config=None,
                  config_name=None, **kwargs):
@@ -139,9 +142,8 @@ class Service(BaseService):
                 func = warp_handler(method_meta, self._method_handler[name])
             else:
                 func = NotImplementedMethod
-
-            generic_handler[name] = func
-        return generic_handler
+            generic_handler[name] = make_grpc_method_handler(method_meta, func, )
+        return grpc.method_handlers_generic_handler(self.full_name, generic_handler)
 
     def add_to_server(self, server):
         server.add_generic_rpc_handlers((self._make_generic_handler(),))
@@ -150,6 +152,7 @@ class Service(BaseService):
 class App(BaseApp):
     def __init__(self, services: List[Union[Service, ServiceDescriptor]] = None, **kwargs):
         super().__init__(**kwargs)
+
         self._services: Dict[str, Service] = {}
 
         _services = services or []
@@ -174,7 +177,7 @@ class App(BaseApp):
             raise ServiceNotFound(full_name, available_services=self.service_names)
 
     def add_service(self, service: Service):
-        if not isinstance(service, Service):
+        if not isinstance(service, BaseService):
             raise RegisterError('you must register Service class object')
         self._services[service.full_name] = service
         service.register_app(self)

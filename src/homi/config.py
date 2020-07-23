@@ -1,15 +1,13 @@
 from abc import ABC
 
-from src.homi.app import BaseApp
-
 
 class BaseServiceConfig(ABC):
     def __init__(self, name: str, default: dict = None):
         self._default = default
         self.name = name
-        self.app: BaseApp = None
+        self.app = None
 
-    def register_app(self, app: BaseApp):
+    def register_app(self, app):
         self.app = app
 
     def get_config(self) -> dict:
@@ -18,7 +16,7 @@ class BaseServiceConfig(ABC):
 
 class MergeConfig(BaseServiceConfig):
 
-    def register_app(self, app: BaseApp):
+    def register_app(self, app):
         super().register_app(app)
         app_config = self.app.config.get(self.name)
         if app_config:

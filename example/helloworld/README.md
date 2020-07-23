@@ -94,7 +94,7 @@ homi run
 
 5. use it!
 ```shell script
-# show all service
+# show all extend
 grpcurl -plaintext localhost:50051 list
 # print like this
 # grpc.reflection.v1alpha.ServerReflection
