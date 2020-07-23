@@ -25,24 +25,67 @@ pip install homi
 check more [example](https://github.com/spaceone-dev/homi/tree/master/example)
 
 ```python
-import homi
-
-import helloworld_pb2
-import helloworld_pb2_grpc
+from homi import App, Server
+from homi.extend.service import reflection_service, health_service
 
 
-@homi.register(helloworld_pb2_grpc, 'Greeter',method='SayHello')
+from helloworld_pb2 import DESCRIPTOR
+
+svc_desc = DESCRIPTOR.services_by_name['Greeter']
+
+app = App(
+    services=[
+        svc_desc,
+        reflection_service,
+        health_service,
+    ]
+)
+
+# unary-unary method
+@app.method('helloworld.Greeter')
+def SayHello(name, **kwargs):
+    print(f"{name} is request SayHello")
+    return {"message": f"Hello {name}!"}
+
+
+# or 
+@app.method('helloworld.Greeter','SayHello')
 def hello(request,context):
     print(f"{request.name} is request SayHello")
-    return helloworld_pb2.HelloReply(message=f"Hello {request.name}!")
+    return {"message": f"Hello {request.name}!"}
 
-# or you can do just like this! It's easy!!
+# or
+def hello_func(request,context):
+    return {"message":"hi"}
 
-@homi.register(helloworld_pb2_grpc, 'Greeter') # auto find same method name
-def SayHello(name,**kwargs): # auto deserialize request to dict
+app.register_method('helloworld.Greeter','SayHello',hello_func)
+
+if __name__ == '__main__':
+    server = Server(app)
+    server.run()
+```
+
+## Service Example
+The service class is similar to the blueprint of flask. You can separate files on a service basis or add services created by others.
+Also, we will be able to override the method already registered in the future.
+
+```python
+from homi import App, Server,Service
+from homi.extend.service import reflection_service, health_service
+
+from helloworld_pb2 import DESCRIPTOR
+
+app = App(services=[reflection_service,health_service,])
+
+greeter = Service(DESCRIPTOR.services_by_name['Greeter'])
+
+@greeter.method()
+def SayHello(name, **kwargs):
     print(f"{name} is request SayHello")
-    return {"message":f"Hello {name}!"} # auto serialize dict to response
+    return {"message": f"Hello {name}!"}
 
+# you can share service to pypi
+app.add_service(greeter)
 ```
 
 ## run server
@@ -77,6 +120,13 @@ homi run -w 5
 - 0.0.4.alpha
     - add real server testcase
     - support grpc-health
-    
+- 0.1.0
+    - Breaking Change!!! #19
+        - Add App
+            - now you must make server using App class!
+        - Add Service
+            - You can separate the code by service or method.
+        - Add Config
+            - now you can use service config and overwrite in app
   
 

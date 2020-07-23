@@ -24,11 +24,11 @@ class ServiceNotFound(ProtobufError):
 
 
 class MethodNotFound(ProtobufError):
-    def __init__(self, method_name, service_name, available_methods: List[str] = None, **kwargs):
+    def __init__(self, method_name, service_name=None, available_methods: List[str] = None, **kwargs):
         self.fail_method = method_name
-        self.service_name = service_name
+        self.service_name = service_name or ''
         self.methods = available_methods
 
     def __str__(self):
         msg = f"Can not find {self.fail_method} in {self.service_name}."
-        return f"{msg} or you can use this methods {', '.join(self.methods)}" if self.methods else self.msg
+        return f"{msg} available methods is {', '.join(self.methods)}" if self.methods else self.msg

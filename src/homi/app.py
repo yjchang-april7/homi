@@ -6,7 +6,7 @@ import grpc
 from google.protobuf.descriptor import ServiceDescriptor
 
 from .config import MergeConfig
-from .exception import ServiceNotFound, RegisterError
+from .exception import ServiceNotFound, RegisterError, MethodNotFound
 from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler
 
 
@@ -126,7 +126,8 @@ class Service(Generic[ConfigType], BaseService[ConfigType]):
     def method(self, method_name=None, **kwargs):
         def wrapped(func: Callable):
             name = method_name or func.__name__
-
+            if name not in self.meta.methods:
+                raise MethodNotFound(name, self.meta.full_name, available_methods=self.meta.methods.keys())
             self._method_handler[name] = func
             return func
 
