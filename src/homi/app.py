@@ -1,14 +1,19 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable
+from typing import List, Callable, Dict, Union
 
+import grpc
 from google.protobuf.descriptor import ServiceDescriptor
 
-from src.homi.proto_meta import ServiceMetaData, service_metadata_from_descriptor
+from src.homi.config import MergeConfig
+from src.homi.exception import ServiceNotFound, RegisterError
+from src.homi.proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler
 
 
 def NotImplementedMethod(request, context):
-    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
 
 
 class BaseApp:
@@ -19,28 +24,6 @@ class BaseApp:
     @property
     def config(self):
         return self._config
-
-
-class BaseServiceConfig(ABC):
-    def __init__(self, name: str, default: dict = None):
-        self._default = default
-        self.name = name
-        self.app: BaseApp = None
-
-    def register_app(self, app: BaseApp):
-        self.app = app
-
-    def get_config(self) -> dict:
-        return self._default
-
-
-class MergeConfig(BaseServiceConfig):
-
-    def register_app(self, app: BaseApp):
-        super().register_app(app)
-        app_config = self.app.config.get(self.name)
-        if app_config:
-            self._default.update(app_config)
 
 
 class BaseService(ABC):
@@ -134,33 +117,87 @@ class Service(BaseService):
                  config_name=None, **kwargs):
         super().__init__(service_descriptor, config_class, default_config, config_name, **kwargs)
 
-        self.method_handler = {}
+        self._method_handler: Dict[str, Callable] = {}
 
     # method func register decorator
-    def method(self, name=None, **kwargs):
-        pass
+    def method(self, method_name=None, **kwargs):
+        def wrapped(func: Callable):
+            name = method_name or func.__name__
 
-    def register_method(self, name, func: Callable, **kwargs):
-        # manual register method
-        pass
+            self._method_handler[name] = func
+            return func
+
+        return wrapped
+
+    def register_method(self, method_name, func: Callable, **kwargs):
+        self.method(method_name, **kwargs)(func)
+
+    def _make_generic_handler(self) -> Dict[str, Callable]:
+        generic_handler = {}
+        for name, method_meta in self.meta.methods.items():
+            if name in self._method_handler:
+                func = warp_handler(method_meta, self._method_handler[name])
+            else:
+                func = NotImplementedMethod
+
+            generic_handler[name] = func
+        return generic_handler
 
     def add_to_server(self, server):
-        pass
+        server.add_generic_rpc_handlers((self._make_generic_handler(),))
 
 
 class App(BaseApp):
-    def __init__(self, services: List[Service] = None, **kwargs):
+    def __init__(self, services: List[Union[Service, ServiceDescriptor]] = None, **kwargs):
         super().__init__(**kwargs)
-        self._services: List[Service] = services
+        self._services: Dict[str, Service] = {}
 
-    def add_service(self, service: Service):
-        self._services.append(service)
-        service.register_app(self)
+        _services = services or []
+        for svc in _services:
+            if isinstance(svc, ServiceDescriptor):
+                self.add_service_from_descriptor(svc)
+            else:
+                self.add_service(svc)
+
+    @property
+    def service_names(self):
+        return self._services.keys()
 
     @property
     def services(self):
-        return self._services
+        return self._services.values()
+
+    def get_service_by_full_name(self, full_name: str) -> Service:
+        try:
+            return self._services[full_name]
+        except KeyError:
+            raise ServiceNotFound(full_name, available_services=self.service_names)
+
+    def add_service(self, service: Service):
+        if not isinstance(service, Service):
+            raise RegisterError('you must register Service class object')
+        self._services[service.full_name] = service
+        service.register_app(self)
+
+    def add_service_from_descriptor(self, descriptor: ServiceDescriptor):
+        self.add_service(Service(descriptor))
+
+    def method(self, service_full_name: str, method_name: str = None, **kwargs):
+        svc = self.get_service_by_full_name(service_full_name)
+
+        def wrapped(func: Callable):
+            name = method_name or func.__name__
+            svc.register_method(name, func, **kwargs)
+            return func
+
+        return wrapped
+
+    def register_method(self, service_full_name: str, method_name: str, func: Callable, **kwargs):
+        self.method(service_full_name, method_name, **kwargs)(func)
 
     def bind_to_server(self, server):
+        for svc in self.services:
+            svc.before_server_start_handler()
+
         for svc in self.services:
             svc.add_to_server(server)
