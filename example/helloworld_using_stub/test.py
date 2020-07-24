@@ -3,10 +3,11 @@ import unittest
 import grpc
 from homi import HomiTestCase
 
-import app
+from .app import app
 import helloworld_pb2
 from helloworld_pb2 import HelloRequest
 
+svc_desc = helloworld_pb2.DESCRIPTOR.services_by_name['Greeter']
 
 class GreeterTestCase(HomiTestCase):
     app = app
@@ -16,7 +17,7 @@ class GreeterTestCase(HomiTestCase):
         name = "tom"
         request = HelloRequest(name=name)
         method = server.invoke_unary_unary(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHello']),
+            method_descriptor=(svc_desc.methods_by_name['SayHello']),
             invocation_metadata={},
             request=request, timeout=1)
 
@@ -29,7 +30,7 @@ class GreeterTestCase(HomiTestCase):
         name = "groupA"
         request = HelloRequest(name=name)
         method = server.invoke_unary_stream(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHelloGroup']),
+            method_descriptor=(svc_desc.methods_by_name['SayHelloGroup']),
             invocation_metadata={},
             request=request, timeout=1)
 
@@ -46,7 +47,7 @@ class GreeterTestCase(HomiTestCase):
     def test_hello_everyone(self):
         server = self.get_test_server()
         method = server.invoke_stream_unary(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['HelloEveryone']),
+            method_descriptor=(svc_desc.methods_by_name['HelloEveryone']),
             invocation_metadata={},
             timeout=1
         )
@@ -62,7 +63,7 @@ class GreeterTestCase(HomiTestCase):
         server = self.get_test_server()
         method = server.invoke_stream_stream(
             method_descriptor=(
-                helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHelloOneByOne']),
+                svc_desc.methods_by_name['SayHelloOneByOne']),
             invocation_metadata={},
             timeout=1
         )

@@ -1,39 +1,53 @@
-import homi
+from homi import App, Server
+from homi.extend.service import reflection_service, health_service
 
-import helloworld_pb2
-import helloworld_pb2_grpc
+from helloworld_pb2 import _GREETER
+
+app = App(
+    services=[
+        _GREETER,
+        reflection_service,
+        health_service,
+    ]
+)
+service_name = 'helloworld.Greeter'
 
 
 # unary-unary method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
+@app.method(service_name)
 def SayHello(name, **kwargs):
     print(f"{name} is request SayHello")
-    return helloworld_pb2.HelloReply(message=f"Hello {name}!")
+    return {"message": f"Hello {name}!"}
 
 
 # unary-stream method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
+@app.method(service_name)
 def SayHelloGroup(name, **kwargs):
     print(f"{name} is request SayHelloGroup")
     names = ['a', 'b', 'c', 'd']
     for name in names:
-        yield helloworld_pb2.HelloReply(message=f"Hello {name}!")
+        yield {"message": f"Hello {name}!"}
 
 
 # stream-unary method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
-def HelloEveryone(request_iterator, context):
+@app.method(service_name)
+def HelloEveryone(request_iterator, **kwargs):
     names = []
     for reqs in request_iterator:
         print('you can get raw request', reqs.raw_data)
         names.append(reqs['name'])
-    return helloworld_pb2.HelloReply(message=f"Hello everyone {names}!")
+    return {"message": f"Hello everyone {names}!"}
 
 
 # stream-stream method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
-def SayHelloOneByOne(request_iterator, context):
+@app.method(service_name, 'SayHelloOneByOne')
+def one_by_one(request_iterator, **kwargs):
     for req in request_iterator:
         name = req['name']
         print(f"{name} say to you hello")
-        yield helloworld_pb2.HelloReply(message=f"Hello {name}!")
+        yield {'message': f"Hello {name}!"}
+
+
+if __name__ == '__main__':
+    server = Server(app)
+    server.run()
