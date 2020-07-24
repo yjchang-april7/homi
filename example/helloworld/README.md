@@ -69,7 +69,7 @@ def SayHelloGroup(name, **kwargs):
     names = ['a', 'b', 'c', 'd']
     for name in names:
         yield {"message": f"Hello {name}!"}
-app.add_service()
+
 
 # stream-unary method
 @app.method(service_name)

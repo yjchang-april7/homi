@@ -3,21 +3,23 @@ from typing import Any, Dict
 
 import grpc_testing
 
-from . import Server
-from .registries import get_default_registry
+from . import Server, App, Service
 
 
 class HomiTestCase(unittest.TestCase):
-    app = None
+    app: App = None
     _test_server = None
 
     def get_test_server(self):
         if not self._test_server:
-            register = get_default_registry()
-            self._test_server = grpc_testing.server_from_dictionary(
-                register.test_servicers, grpc_testing.strict_real_time()
-            )
+            servicers = {}
+            for svc in self.app.services:
+                if isinstance(svc, Service):
+                    servicers[svc.descriptor] = svc.make_servicer_class()
 
+            self._test_server = grpc_testing.server_from_dictionary(
+                servicers, grpc_testing.strict_real_time()
+            )
         return self._test_server
 
     @staticmethod

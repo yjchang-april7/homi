@@ -7,10 +7,11 @@ from google.protobuf.descriptor import ServiceDescriptor
 
 from .config import MergeConfig
 from .exception import ServiceNotFound, RegisterError, MethodNotFound
-from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler
+from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler, \
+    warp_handler_for_method
 
 
-def NotImplementedMethod(request, context):
+def NotImplementedMethod(self, request, context):
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -42,6 +43,7 @@ class BaseService(Generic[ConfigType], ABC):
         self._app: BaseApp = None
         self._is_registered = False
 
+        self._descriptor = service_descriptor
         self._meta: ServiceMetaData = service_metadata_from_descriptor(service_descriptor)
         self._config: config_class
 
@@ -50,6 +52,10 @@ class BaseService(Generic[ConfigType], ABC):
         # lifecycle method
         self._after_registered_handler = None
         self._before_server_start_handler = None
+
+    @property
+    def descriptor(self):
+        return self._descriptor
 
     @property
     def meta(self):
@@ -135,6 +141,17 @@ class Service(Generic[ConfigType], BaseService[ConfigType]):
 
     def register_method(self, method_name, func: Callable, **kwargs):
         self.method(method_name, **kwargs)(func)
+
+    def make_servicer_class(self):
+        methods = {}
+        for name, method_meta in self.meta.methods.items():
+            if name in self._method_handler:
+                func = warp_handler_for_method(method_meta, self._method_handler[name])
+            else:
+                func = NotImplementedMethod
+            methods[name] = func
+        servicer = type(self.full_name, (), methods)
+        return servicer
 
     def _make_generic_handler(self) -> Dict[str, Callable]:
         generic_handler = {}

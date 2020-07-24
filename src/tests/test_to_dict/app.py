@@ -1,15 +1,22 @@
-from . import helloworld_pb2_grpc
-from ... import homi
+from .helloworld_pb2 import _GREETER
+from ...homi import App
+
+app = App(
+    services=[
+        _GREETER,
+    ]
+)
+service_name = 'helloworld.Greeter'
 
 
 # unary-unary method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
+@app.method(service_name)
 def SayHello(name, **kwargs):
     return {"message": f"Hello {name}!"}
 
 
 # unary-stream method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
+@app.method(service_name)
 def SayHelloGroup(name, **kwargs):
     names = ['a', 'b', 'c', 'd']
     for name in names:
@@ -17,7 +24,7 @@ def SayHelloGroup(name, **kwargs):
 
 
 # stream-unary method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
+@app.method(service_name)
 def HelloEveryone(request_iterator, context):
     names = []
     for reqs in request_iterator:
@@ -26,7 +33,7 @@ def HelloEveryone(request_iterator, context):
 
 
 # stream-stream method
-@homi.register(helloworld_pb2_grpc, 'Greeter')
+@app.method(service_name)
 def SayHelloOneByOne(request_iterator, context):
     for req in request_iterator:
         yield {"message": f"Hello {req['name']}!"}

@@ -95,17 +95,11 @@ def parse_request(parameters, request) -> Dict:
     return args
 
 
-def _request_stream(request_iterator):
+def parse_stream_request(request_iterator) -> Dict:
     for req in request_iterator:
         msg = StreamMessage(**json_format.MessageToDict(req))
         msg.raw_data = req
         yield msg
-
-
-def parse_stream_request(request_iterator) -> Dict:
-    return {
-        "request": _request_stream(request_iterator)
-    }
 
 
 def parse_to_dict(input_type, item):
@@ -121,18 +115,29 @@ def warp_handler(method_meta: MethodMetaData, func):
     sig = signature(func)
     parameters = tuple(k for k, v in sig._parameters.items() if v.kind.value == 1)
 
-    if method_meta.method_type.is_unary_request:
-        argument_func = partial(parse_request, parameters)
-    else:
-        argument_func = parse_stream_request
-
     if method_meta.method_type.is_unary_response:
         return_func = partial(parse_to_dict, method_meta.output_type)
     else:
         return_func = partial(parse_stream_return, method_meta.output_type)
 
-    def decorator(self, request, context):
-        result = func(**argument_func(request), request=request, context=context)
-        return return_func(result)
+    if method_meta.method_type.is_unary_request:
+        request_parser = partial(parse_request, parameters)
+
+        def wrapper(self, request, context):
+            result = func(**request_parser(request), context=context)
+            return return_func(result)
+    else:
+        def wrapper(self, request, context):
+            result = func(parse_stream_request(request), context=context)
+            return return_func(result)
+
+    return wrapper
+
+
+def warp_handler_for_method(method_meta: MethodMetaData, func):
+    handler = warp_handler(method_meta, func)
+
+    def decorator(request, context):
+        return handler(None, request, context)
 
     return decorator

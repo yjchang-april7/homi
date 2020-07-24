@@ -1,5 +1,6 @@
+from homi import App
+
 from .helloworld_pb2 import _GREETER, HelloReply
-from ...homi import App
 
 app = App(
     services=[
