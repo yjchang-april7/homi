@@ -2,7 +2,8 @@ import unittest
 
 import grpc
 
-from . import app, helloworld_pb2
+from . import helloworld_pb2
+from .app import app
 from .helloworld_pb2 import HelloRequest
 from ...homi import HomiTestCase
 

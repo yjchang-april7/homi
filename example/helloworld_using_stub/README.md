@@ -1,5 +1,8 @@
-from .helloworld_pb2 import _GREETER, HelloReply
-from ...homi import App
+## Retrun Dict example
+
+```python
+from .helloworld_pb2 import _GREETER,HelloReply
+from homi import App
 
 app = App(
     services=[
@@ -42,3 +45,5 @@ def SayHelloOneByOne(request_iterator, context):
         name = req['name']
         print(f"{name} say to you hello")
         yield HelloReply(message=f"Hello {name}!")
+
+```
