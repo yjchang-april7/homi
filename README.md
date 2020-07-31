@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/homi?style=flat-square)](https://pypi.org/project/homi)
 [![PyPI download month](https://img.shields.io/pypi/dm/homi?style=flat-square)](https://pypi.org/project/homi)
 [![codecov](https://codecov.io/gh/spaceone-dev/homi/branch/master/graph/badge.svg)](https://codecov.io/gh/spaceone-dev/homi)
-[![ViewCount](https://views.whatilearened.today/views/github/spaceone-dev/homi.svg)](https://github.com/wesky93/views)
+[![ViewCount](https://views.whatilearened.today/views/github/spaceone-dev/homi.svg?nocache=true)](https://github.com/wesky93/views)
 
 micro grpc framework like flask
 
