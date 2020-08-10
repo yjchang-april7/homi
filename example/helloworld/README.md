@@ -52,7 +52,7 @@ app = App(
         health_service,
     ]
 )
-service_name = _GREETER.full_name # 'helloworld.Greeter'
+service_name = 'helloworld.Greeter'
 
 
 # unary-unary method
@@ -82,16 +82,18 @@ def HelloEveryone(request_iterator, **kwargs):
 
 
 # stream-stream method
-@app.method(service_name, 'SayHelloOneByOne') # you can change func name
+@app.method(service_name, 'SayHelloOneByOne')
 def one_by_one(request_iterator, **kwargs):
     for req in request_iterator:
         name = req['name']
         print(f"{name} say to you hello")
         yield {'message': f"Hello {name}!"}
 
+
 if __name__ == '__main__':
     server = Server(app)
     server.run()
+
 ```
 
 4. run server
