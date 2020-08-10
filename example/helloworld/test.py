@@ -3,9 +3,8 @@ import unittest
 import grpc
 from homi import HomiTestCase
 
-import app
-import helloworld_pb2
-from helloworld_pb2 import HelloRequest
+from .app import app
+from helloworld_pb2 import HelloRequest, _GREETER
 
 
 class GreeterTestCase(HomiTestCase):
@@ -16,7 +15,7 @@ class GreeterTestCase(HomiTestCase):
         name = "tom"
         request = HelloRequest(name=name)
         method = server.invoke_unary_unary(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHello']),
+            method_descriptor=(_GREETER.methods_by_name['SayHello']),
             invocation_metadata={},
             request=request, timeout=1)
 
@@ -29,7 +28,7 @@ class GreeterTestCase(HomiTestCase):
         name = "groupA"
         request = HelloRequest(name=name)
         method = server.invoke_unary_stream(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHelloGroup']),
+            method_descriptor=(_GREETER.methods_by_name['SayHelloGroup']),
             invocation_metadata={},
             request=request, timeout=1)
 
@@ -46,7 +45,7 @@ class GreeterTestCase(HomiTestCase):
     def test_hello_everyone(self):
         server = self.get_test_server()
         method = server.invoke_stream_unary(
-            method_descriptor=(helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['HelloEveryone']),
+            method_descriptor=(_GREETER.methods_by_name['HelloEveryone']),
             invocation_metadata={},
             timeout=1
         )
@@ -55,14 +54,14 @@ class GreeterTestCase(HomiTestCase):
         self.send_request_all(method, (HelloRequest(name=name) for name in names))
 
         response, metadata, code, details = method.termination()
+        print(details)
         self.assertEqual(code, grpc.StatusCode.OK)
         self.assertEqual(response.message, f'Hello everyone {names}!')
 
     def test_say_hello_one_by_one(self):
         server = self.get_test_server()
         method = server.invoke_stream_stream(
-            method_descriptor=(
-                helloworld_pb2.DESCRIPTOR.services_by_name['Greeter'].methods_by_name['SayHelloOneByOne']),
+            method_descriptor=(_GREETER.methods_by_name['SayHelloOneByOne']),
             invocation_metadata={},
             timeout=1
         )

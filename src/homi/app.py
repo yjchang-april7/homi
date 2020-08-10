@@ -7,11 +7,10 @@ from google.protobuf.descriptor import ServiceDescriptor
 
 from .config import MergeConfig
 from .exception import ServiceNotFound, RegisterError, MethodNotFound
-from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler, \
-    warp_handler_for_method
+from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler
 
 
-def NotImplementedMethod(self, request, context):
+def NotImplementedMethod(request, context):
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -146,7 +145,7 @@ class Service(Generic[ConfigType], BaseService[ConfigType]):
         methods = {}
         for name, method_meta in self.meta.methods.items():
             if name in self._method_handler:
-                func = warp_handler_for_method(method_meta, self._method_handler[name])
+                func = warp_handler(method_meta, self._method_handler[name])
             else:
                 func = NotImplementedMethod
             methods[name] = func
