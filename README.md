@@ -109,17 +109,12 @@ homi run -w 5
 
 
 ## Change Logs
-- 0.0.1 (init project)
-    - run server using cli
-    - helloworld example
-- 0.0.3
-    - support all method type
-    - add flak8 lint
-    - add test case
-    - \#9 auto parse response message
-- 0.0.4.alpha
-    - add real server testcase
-    - support grpc-health
+
+- 0.1.1
+    - Fix Bugs
+        - #23 : change support python version >= 3.8 (for TypedDict)
+        - #22 : remove handler wrapper self arguments
+
 - 0.1.0
     - Breaking Change!!! #19
         - Add App
@@ -128,5 +123,14 @@ homi run -w 5
             - You can separate the code by service or method.
         - Add Config
             - now you can use service config and overwrite in app
-  
-
+ - 0.0.4.alpha
+    - add real server testcase
+    - support grpc-health
+- 0.0.3
+    - support all method type
+    - add flak8 lint
+    - add test case
+    - \#9 auto parse response message
+- 0.0.1 (init project)
+    - run server using cli
+    - helloworld example
