@@ -123,11 +123,11 @@ def warp_handler(method_meta: MethodMetaData, func):
     if method_meta.method_type.is_unary_request:
         request_parser = partial(parse_request, parameters)
 
-        def wrapper(self, request, context):
+        def wrapper(request, context):
             result = func(**request_parser(request), context=context)
             return return_func(result)
     else:
-        def wrapper(self, request, context):
+        def wrapper(request, context):
             result = func(parse_stream_request(request), context=context)
             return return_func(result)
 
@@ -138,6 +138,6 @@ def warp_handler_for_method(method_meta: MethodMetaData, func):
     handler = warp_handler(method_meta, func)
 
     def decorator(request, context):
-        return handler(None, request, context)
+        return handler(request, context)
 
     return decorator
