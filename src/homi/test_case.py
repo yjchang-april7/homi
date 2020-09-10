@@ -70,7 +70,9 @@ class HomiRealServerTestCase(unittest.TestCase):
         self.test_server.run(wait=False)
 
     def setUp(self):
+        super().setUp()
         self.run_real_server()
 
     def tearDown(self):
+        super().tearDown()
         self.test_server.stop()
