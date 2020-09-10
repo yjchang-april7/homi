@@ -1,12 +1,12 @@
 from enum import Enum
 from functools import partial
 from inspect import signature
-from typing import TypeVar, NamedTuple, Any, Dict, Tuple
+from typing import Any, Dict, NamedTuple, Tuple, TypeVar
 
 import grpc
-from google.protobuf import symbol_database, json_format
-from google.protobuf.descriptor import ServiceDescriptor, MethodDescriptor
-from google.protobuf.descriptor_pb2 import ServiceDescriptorProto, MethodDescriptorProto
+from google.protobuf import json_format, symbol_database
+from google.protobuf.descriptor import MethodDescriptor, ServiceDescriptor
+from google.protobuf.descriptor_pb2 import MethodDescriptorProto, ServiceDescriptorProto
 
 
 class MethodType(Enum):
@@ -87,7 +87,7 @@ class StreamMessage(Dict):
 
 
 def parse_request(parameters, request) -> Dict:
-    request_dict = json_format.MessageToDict(request)
+    request_dict = json_format.MessageToDict(request, preserving_proto_field_name=True)
     args = {}
     for p in parameters:
         args[p] = request_dict.get(p)
@@ -97,7 +97,7 @@ def parse_request(parameters, request) -> Dict:
 
 def parse_stream_request(request_iterator) -> Dict:
     for req in request_iterator:
-        msg = StreamMessage(**json_format.MessageToDict(req))
+        msg = StreamMessage(**json_format.MessageToDict(req, preserving_proto_field_name=True))
         msg.raw_data = req
         yield msg
 
