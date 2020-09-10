@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 import grpc_testing
 
-from . import Server, App, Service
+from . import App, Server, Service
 
 
 class HomiTestCase(unittest.TestCase):
@@ -66,7 +66,7 @@ class HomiRealServerTestCase(unittest.TestCase):
                 self.test_server.stop()
             except Exception:
                 pass
-        self.test_server = Server(**self.get_server_config(config))
+        self.test_server = Server(self.app, **self.get_server_config(config))
         self.test_server.run(wait=False)
 
     def setUp(self):
