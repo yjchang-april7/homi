@@ -1,7 +1,13 @@
+import datetime
 import unittest
 from typing import Any, Dict
 
+import grpc
 import grpc_testing
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.x509.oid import NameOID
 
 from . import App, Server, Service
 
@@ -45,14 +51,68 @@ class HomiRealServerTestCase(unittest.TestCase):
         "host": "localhost",
         "port": '5999'
     }
+    tls = False
+    _tls_key = None
+    _certificate = None
     test_server_config: Dict[str, Any] = {}
     test_server = None
 
+    @property
+    def tls_key(self):
+        if not self._tls_key:
+            self._tls_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        return self._tls_key
+
+    @property
+    def certificate(self):
+        if not self._certificate:
+            subject = issuer = x509.Name([
+                x509.NameAttribute(NameOID.COUNTRY_NAME, "US"),
+                x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"California"),
+                x509.NameAttribute(NameOID.LOCALITY_NAME, "San Francisco"),
+                x509.NameAttribute(NameOID.ORGANIZATION_NAME, "My Company"),
+                x509.NameAttribute(NameOID.COMMON_NAME, "localhost"),
+            ])
+            self._certificate = x509.CertificateBuilder() \
+                .subject_name(subject) \
+                .issuer_name(issuer) \
+                .public_key(self.tls_key.public_key()) \
+                .serial_number(x509.random_serial_number()) \
+                .not_valid_before(datetime.datetime.utcnow()) \
+                .not_valid_after(
+                # Our certificate will be valid for 10 days
+                datetime.datetime.utcnow() + datetime.timedelta(days=10)
+            ) \
+                .add_extension(x509.SubjectAlternativeName([x509.DNSName("localhost")]),
+                               critical=False, ).sign(self.tls_key, hashes.SHA256())
+        return self._certificate
+
+    @property
+    def client_credentials(self):
+        cert = self.certificate.public_bytes(serialization.Encoding.PEM)
+        return grpc.ssl_channel_credentials(cert)
+
+    @property
+    def tls_config(self):
+        if not self.tls:
+            return {}
+        else:
+            return {
+                "private_key": self.tls_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                ),
+                "certificate": self.certificate.public_bytes(serialization.Encoding.PEM),
+            }
+
     def get_server_config(self, merge_config: dict = None):
         config = merge_config or {}
+
         return {
             **self.default_server_config,
             **self.test_server_config,
+            **self.tls_config,
             **config,
         }
 
