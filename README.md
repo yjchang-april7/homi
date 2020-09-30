@@ -18,7 +18,8 @@ pip install homi
 - [x] auto parse request data to dict, you don't use grpc request object
 - [x] auto set argument what you want
 - [x] support all grpc service type(unary-unary,unary-stream,stream-unary,stream-stream)
-- [ ] you just return dict type, not grpc object
+- [x] TLS support
+- [x] you just return dict type, not grpc object
 
 
 ## Example
@@ -101,6 +102,9 @@ homi run -p 50055
 
 # change total worker
 homi run -w 5
+
+# run TLS server
+homi run --private_key server.key --certificate server.crt
 ```
 
 
@@ -109,7 +113,9 @@ homi run -w 5
 
 
 ## Change Logs
-
+- 0.1.5
+    - Feature
+        - #29 : support tls server
 - 0.1.1
     - Fix Bugs
         - #23 : change support python version >= 3.8 (for TypedDict)
