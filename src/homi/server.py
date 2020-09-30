@@ -4,7 +4,7 @@ from concurrent import futures
 import grpc
 
 from .app import App
-from .exceptions import ServerConfigError, ServerSSLConfigError
+from .exception import ServerSSLConfigError
 
 
 class Server:
@@ -13,9 +13,9 @@ class Server:
                  host: str = None,
                  port: str = '50051',
                  worker: int = 10,
-                 debug:bool = False,
-                 private_key:bytes=None,
-                 certificate:bytes=None,
+                 debug: bool = False,
+                 private_key: bytes = None,
+                 certificate: bytes = None,
                  ):
         self.host = host
         self.port = port
@@ -26,7 +26,7 @@ class Server:
         self.private_key = private_key
         self.certificate = certificate
         self.server = None
-        self._server_credentials= None
+        self._server_credentials = None
         self.thread_pool = futures.ThreadPoolExecutor(max_workers=self.worker)
 
     def load_config_from_env(self):
@@ -41,7 +41,7 @@ class Server:
     def server_credentials(self):
         if not self._server_credentials:
             self._server_credentials = grpc.ssl_server_credentials(
-            ((self.private_key, self.certificate,),))
+                ((self.private_key, self.certificate,),))
         return self._server_credentials
 
     def _add_port(self):

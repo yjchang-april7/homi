@@ -36,7 +36,6 @@ class GreeterTestCase(HomiRealServerTestCase):
         for idx, rep in enumerate(response):
             self.assertEqual(rep.message, f"Hello {return_names[idx]}!")
 
-
     def test_hello_everyone(self):
         channel = grpc.secure_channel(f'{self.default_server_config["host"]}:{self.default_server_config["port"]}',
                                       self.client_credentials)
@@ -44,7 +43,7 @@ class GreeterTestCase(HomiRealServerTestCase):
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         names = ["tom", 'sam', 'wony', 'homi']
 
-        response =stub.HelloEveryone((HelloRequest(name=name) for name in names))
+        response = stub.HelloEveryone((HelloRequest(name=name) for name in names))
         self.assertEqual(response.message, f'Hello everyone {names}!')
 
     def test_say_hello_one_by_one(self):
@@ -54,8 +53,7 @@ class GreeterTestCase(HomiRealServerTestCase):
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         names = ["tom", 'sam', 'wony', 'homi']
 
-        response =list( stub.SayHelloOneByOne((HelloRequest(name=name) for name in names)))
-
+        response = list(stub.SayHelloOneByOne((HelloRequest(name=name) for name in names)))
 
         self.assertEqual(len(response), len(names))
 
@@ -67,7 +65,7 @@ class GreeterTestCase(HomiRealServerTestCase):
 
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         name = 'tom'
-        with self.assertRaises(grpc._channel._InactiveRpcError) as ctx:
+        with self.assertRaises(grpc._channel._InactiveRpcError) as _:
             stub.SayHello(HelloRequest(name=name))
 
     def test_fail_try_wrong_credentials(self):
@@ -77,8 +75,9 @@ class GreeterTestCase(HomiRealServerTestCase):
                                       wrong_credentials)
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         name = 'tom'
-        with self.assertRaises(grpc._channel._InactiveRpcError) as ctx:
+        with self.assertRaises(grpc._channel._InactiveRpcError) as _:
             stub.SayHello(HelloRequest(name=name))
+
 
 if __name__ == '__main__':
     unittest.main()

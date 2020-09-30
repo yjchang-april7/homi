@@ -6,7 +6,6 @@ import grpc
 import grpc_testing
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 
@@ -104,7 +103,7 @@ class HomiRealServerTestCase(unittest.TestCase):
                     format=serialization.PrivateFormat.TraditionalOpenSSL,
                     encryption_algorithm=serialization.NoEncryption(),
                 ),
-                "certificate":self.certificate.public_bytes(serialization.Encoding.PEM),
+                "certificate": self.certificate.public_bytes(serialization.Encoding.PEM),
             }
 
     def get_server_config(self, merge_config: dict = None):

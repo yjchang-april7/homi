@@ -16,7 +16,7 @@ def cli():
 @click.option("--host", "-h", default="127.0.0.1", help="The interface to bind to.")
 @click.option("--port", "-p", default='50051', help="The port to bind to.")
 @click.option('--worker', '-w', default=10, type=int)
-@click.option('--private_key', '-k', type=click.Path(exists=True, resolve_path=True), help='tls private key' )
+@click.option('--private_key', '-k', type=click.Path(exists=True, resolve_path=True), help='tls private key')
 @click.option('--certificate', '-c', type=click.Path(exists=True, resolve_path=True), help='tls root certificate')
 # @click.option(
 #     "--reload/--no-reload",
@@ -40,13 +40,12 @@ def run_command(file, host, port, worker, debug, private_key=None, certificate=N
 
     from .server import Server
     if private_key and certificate:
-        with open(private_key,'rb') as f:
+        with open(private_key, 'rb') as f:
             private_key = f.read()
-        with open(certificate,'rb') as f:
+        with open(certificate, 'rb') as f:
             certificate = f.read()
     elif private_key or certificate:
         raise ServerSSLConfigError('if you want use tls mode, you must set both private_key & certificate value')
-
 
     Server(
         app_module.app,
