@@ -1,13 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Dict, Union, Generic, TypeVar
+from typing import Callable, Dict, Generic, List, TypeVar, Union
 
 import grpc
 from google.protobuf.descriptor import ServiceDescriptor
 
 from .config import MergeConfig
-from .exception import ServiceNotFound, RegisterError, MethodNotFound
-from .proto_meta import ServiceMetaData, service_metadata_from_descriptor, warp_handler, make_grpc_method_handler
+from .exception import MethodNotFound, RegisterError, ServiceNotFound
+from .proto_meta import ServiceMetaData, make_grpc_method_handler, service_metadata_from_descriptor, warp_handler
 
 
 def NotImplementedMethod(request, context):

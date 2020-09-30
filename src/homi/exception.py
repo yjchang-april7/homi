@@ -1,4 +1,4 @@
-from typing import List, Iterator
+from typing import Iterator, List
 
 
 class HomiException(Exception):
@@ -6,6 +6,14 @@ class HomiException(Exception):
 
 
 class RegisterError(HomiException):
+    pass
+
+
+class ServerConfigError(HomiException):
+    pass
+
+
+class ServerSSLConfigError(ServerConfigError):
     pass
 
 
