@@ -16,7 +16,7 @@ def cli():
 @click.option("--host", "-h", default="127.0.0.1", help="The interface to bind to.")
 @click.option("--port", "-p", default='50051', help="The port to bind to.")
 @click.option('--worker', '-w', default=10, type=int)
-@click.option('--alts', type=bool, default=False, help='enable alts')
+@click.option('--alts', type=bool, default=False, help='[Experimental] enable alts')
 @click.option('--private_key', '-k', type=click.Path(exists=True, resolve_path=True), help='tls private key')
 @click.option('--certificate', '-c', type=click.Path(exists=True, resolve_path=True), help='tls root certificate')
 # @click.option(
