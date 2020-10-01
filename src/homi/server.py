@@ -14,6 +14,7 @@ class Server:
                  port: str = '50051',
                  worker: int = 10,
                  debug: bool = False,
+                 alts: bool = False,
                  private_key: bytes = None,
                  certificate: bytes = None,
                  ):
@@ -23,6 +24,7 @@ class Server:
         self.app = app
         self.debug = debug
         self.load_config_from_env()
+        self.alts = alts
         self.private_key = private_key
         self.certificate = certificate
         self.server = None
@@ -45,9 +47,10 @@ class Server:
         return self._server_credentials
 
     def _add_port(self):
-        if self.private_key and self.certificate:
+        if self.alts:
+            self.server.add_secure_port(self.endpoint, grpc.alts_server_credentials())
+        elif self.private_key and self.certificate:
             self.server.add_secure_port(self.endpoint, self.server_credentials)
-            pass
         elif self.private_key or self.certificate:
             # error
             raise ServerSSLConfigError('If you want enable ssl feature, You Must set tls_key, certificate config both ')
