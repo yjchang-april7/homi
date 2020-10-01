@@ -51,6 +51,7 @@ class HomiRealServerTestCase(unittest.TestCase):
         "host": "localhost",
         "port": '5999'
     }
+    alts = False
     tls = False
     _tls_key = None
     _certificate = None
@@ -88,9 +89,13 @@ class HomiRealServerTestCase(unittest.TestCase):
         return self._certificate
 
     @property
-    def client_credentials(self):
-        cert = self.certificate.public_bytes(serialization.Encoding.PEM)
-        return grpc.ssl_channel_credentials(cert)
+    def channel_credentials(self):
+        if self.alts:
+            return grpc.alts_channel_credentials()
+        elif self.tls:
+            cert = self.certificate.public_bytes(serialization.Encoding.PEM)
+            return grpc.ssl_channel_credentials(cert)
+        return None
 
     @property
     def tls_config(self):

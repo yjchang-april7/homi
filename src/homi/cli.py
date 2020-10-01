@@ -3,7 +3,7 @@ from os.path import dirname
 
 import click
 
-from .exceptions import ServerSSLConfigError
+from .exception import ServerSSLConfigError
 
 
 @click.group()
@@ -16,6 +16,7 @@ def cli():
 @click.option("--host", "-h", default="127.0.0.1", help="The interface to bind to.")
 @click.option("--port", "-p", default='50051', help="The port to bind to.")
 @click.option('--worker', '-w', default=10, type=int)
+@click.option('--alts', type=bool, default=False, help='[Experimental] enable alts')
 @click.option('--private_key', '-k', type=click.Path(exists=True, resolve_path=True), help='tls private key')
 @click.option('--certificate', '-c', type=click.Path(exists=True, resolve_path=True), help='tls root certificate')
 # @click.option(
@@ -30,7 +31,7 @@ def cli():
     type=bool,
     help="Server Debug Mode",
 )
-def run_command(file, host, port, worker, debug, private_key=None, certificate=None):
+def run_command(file, host, port, worker, debug, alts, private_key=None, certificate=None):
     sys.path.append(dirname(file))
     import importlib.util
 
@@ -51,6 +52,7 @@ def run_command(file, host, port, worker, debug, private_key=None, certificate=N
         app_module.app,
         host, port, worker,
         debug=debug,
+        alts=alts,
         private_key=private_key,
         certificate=certificate
     ).run()
