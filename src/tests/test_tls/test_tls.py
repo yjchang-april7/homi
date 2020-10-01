@@ -8,14 +8,14 @@ from .helloworld_pb2 import HelloRequest
 from ...homi.test_case import HomiRealServerTestCase
 
 
-class GreeterTestCase(HomiRealServerTestCase):
+class TlsTestCase(HomiRealServerTestCase):
     app = app
     tls = True
 
     def test_hello_say(self):
 
         channel = grpc.secure_channel(f'{self.default_server_config["host"]}:{self.default_server_config["port"]}',
-                                      self.client_credentials)
+                                      self.channel_credentials)
 
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         name = 'tom'
@@ -25,7 +25,7 @@ class GreeterTestCase(HomiRealServerTestCase):
 
     def test_hello_say_group(self):
         channel = grpc.secure_channel(f'{self.default_server_config["host"]}:{self.default_server_config["port"]}',
-                                      self.client_credentials)
+                                      self.channel_credentials)
 
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         name = "groupA"
@@ -38,7 +38,7 @@ class GreeterTestCase(HomiRealServerTestCase):
 
     def test_hello_everyone(self):
         channel = grpc.secure_channel(f'{self.default_server_config["host"]}:{self.default_server_config["port"]}',
-                                      self.client_credentials)
+                                      self.channel_credentials)
 
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         names = ["tom", 'sam', 'wony', 'homi']
@@ -48,7 +48,7 @@ class GreeterTestCase(HomiRealServerTestCase):
 
     def test_say_hello_one_by_one(self):
         channel = grpc.secure_channel(f'{self.default_server_config["host"]}:{self.default_server_config["port"]}',
-                                      self.client_credentials)
+                                      self.channel_credentials)
 
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         names = ["tom", 'sam', 'wony', 'homi']
