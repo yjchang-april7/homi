@@ -4,7 +4,7 @@ import grpc
 
 from .app import app
 from .helloworld_pb2 import HelloRequest, _GREETER
-from ...homi import HomiTestCase
+from ...homi.test_case import HomiTestCase
 
 
 class GreeterTestCase(HomiTestCase):
