@@ -113,6 +113,10 @@ homi run --private_key server.key --certificate server.crt
 
 
 ## Change Logs
+- 0.1.7
+    - Fix Bugs
+        - remove HomiRealServerTestCase, HomiTestCase from __init__.py, please import test class direct
+        - add cryptography dependency     
 - 0.1.6
     - Feature
         - #30 : support atls server [Experimental]

@@ -1,10 +1,10 @@
 import unittest
 
 import grpc
-from homi import HomiTestCase
+from homi.test_case import HomiTestCase
 
 from .app import app
-from helloworld_pb2 import HelloRequest, _GREETER
+from .helloworld_pb2 import HelloRequest,_GREETER
 
 
 class GreeterTestCase(HomiTestCase):

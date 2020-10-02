@@ -1,7 +1,11 @@
 from homi import App, Server
 from homi.extend.service import reflection_service, health_service
 
-from helloworld_pb2 import _GREETER
+try:
+    from .helloworld_pb2 import _GREETER
+except Exception:
+    from helloworld_pb2 import _GREETER
+
 
 app = App(
     services=[
