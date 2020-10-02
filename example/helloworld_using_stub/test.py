@@ -1,11 +1,11 @@
 import unittest
 
 import grpc
-from homi import HomiTestCase
+from homi.test_case import HomiTestCase
 
 from .app import app
-import helloworld_pb2
-from helloworld_pb2 import HelloRequest
+from . import helloworld_pb2
+from .helloworld_pb2 import HelloRequest
 
 svc_desc = helloworld_pb2.DESCRIPTOR.services_by_name['Greeter']
 
