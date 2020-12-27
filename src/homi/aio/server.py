@@ -69,7 +69,7 @@ class AsyncServer:
 
     async def stop(self, grace=None):
         if self.server:
-            self.server.stop(grace)
+            await self.server.stop(grace)
 
     async def wait_for_termination(self):
         if self.server:

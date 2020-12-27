@@ -1,8 +1,12 @@
+import asyncio
+import logging
 import sys
 from os.path import dirname
 
 import click
 
+from homi import AsyncServer
+from . import AsyncApp
 from .exception import ServerSSLConfigError
 
 
@@ -16,6 +20,7 @@ def cli():
 @click.option("--host", "-h", help="The interface to bind to.")
 @click.option("--port", "-p", default='50051', help="The port to bind to.")
 @click.option('--worker', '-w', default=10, type=int)
+@click.option('--use_uvloop', default=True, type=bool,help="If you don't want uvloop `--uvloop false`")
 @click.option('--alts', type=bool, default=False, help='[Experimental] enable alts')
 @click.option('--private_key', '-k', type=click.Path(exists=True, resolve_path=True), help='tls private key')
 @click.option('--certificate', '-c', type=click.Path(exists=True, resolve_path=True), help='tls root certificate')
@@ -31,7 +36,7 @@ def cli():
     type=bool,
     help="Server Debug Mode",
 )
-def run_command(file, port, worker, debug, alts, host=None, private_key=None, certificate=None):
+def run_command(file, port, worker, debug, alts, host=None, private_key=None, certificate=None,use_uvloop=True):
     sys.path.append(dirname(file))
     import importlib.util
 
@@ -47,15 +52,30 @@ def run_command(file, port, worker, debug, alts, host=None, private_key=None, ce
             certificate = f.read()
     elif private_key or certificate:
         raise ServerSSLConfigError('if you want use tls mode, you must set both private_key & certificate value')
-
-    Server(
-        app_module.app,
-        host, port, worker,
-        debug=debug,
-        alts=alts,
-        private_key=private_key,
-        certificate=certificate
-    ).run()
+    if isinstance(app_module.app, AsyncApp):
+        if use_uvloop:
+            import uvloop
+            asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+        else:
+            print('use asyncio loop (uvloop off)')
+        server = AsyncServer(
+            app_module.app,
+            host, port,
+            debug=debug,
+            alts=alts,
+            private_key=private_key,
+            certificate=certificate
+        )
+        asyncio.run(server.run())
+    else:
+        Server(
+            app_module.app,
+            host, port, worker,
+            debug=debug,
+            alts=alts,
+            private_key=private_key,
+            certificate=certificate
+        ).run()
 
 
 cli.add_command(run_command)
