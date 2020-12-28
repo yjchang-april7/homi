@@ -4,6 +4,8 @@ import grpc
 
 from . import helloworld_pb2
 from .app import app
+from .async_app import app as async_app
+
 from .helloworld_pb2 import HelloRequest
 from ...homi.test_case import HomiTestCase
 

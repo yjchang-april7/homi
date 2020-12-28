@@ -1,5 +1,11 @@
+import asyncio
 import datetime
+import logging
+import threading
 import unittest
+from asyncio import Queue as AsyncQueue
+from queue import Queue
+from time import sleep
 from typing import Any, Dict
 
 import grpc
@@ -9,7 +15,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 
-from . import App, Server, Service
+from . import App, AsyncApp, AsyncServer, Server, Service
 
 
 class HomiTestCase(unittest.TestCase):
@@ -124,6 +130,27 @@ class HomiRealServerTestCase(unittest.TestCase):
     def server_restart(self, merge_config: dict = None):
         self.run_real_server(merge_config)
 
+    def _run_async_server(self, config):
+        self.test_server = AsyncServer(self.app, **self.get_server_config(config))
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.que = AsyncQueue()
+
+        def run_server(loop,server,q):
+            async def operator(server,q):
+                await server.run(wait=False)
+                await q.get()
+                await server.stop()
+                logging.debug('test server stopped')
+
+            loop.run_until_complete(operator(server, q))
+
+
+        self.thread = threading.Thread(target=run_server, args=(self.loop,self.test_server,self.que))
+        self.thread.start()
+        # todo: find how to wait until on server
+        sleep(0.05)
+
     def run_real_server(self, merge_config: dict = None):
         config = merge_config or {}
         if self.test_server:
@@ -131,13 +158,26 @@ class HomiRealServerTestCase(unittest.TestCase):
                 self.test_server.stop()
             except Exception:
                 pass
-        self.test_server = Server(self.app, **self.get_server_config(config))
-        self.test_server.run(wait=False)
+        if isinstance(self.app, AsyncApp):
+            self._run_async_server(config)
+        else:
+            self.test_server = Server(self.app, **self.get_server_config(config))
+            self.test_server.run(wait=False)
 
     def setUp(self):
         super().setUp()
         self.run_real_server()
+    def server_stop(self):
+        if isinstance(self.app, AsyncApp):
+            self.loop.call_soon_threadsafe(self.que.put_nowait,'stop')
+            self.thread.join()
+            del self.thread
+            self.loop.run_until_complete(self.loop.shutdown_asyncgens())
+            self.loop.close()
+        else:
+            self.test_server.stop()
+
 
     def tearDown(self):
         super().tearDown()
-        self.test_server.stop()
+        self.server_stop()
