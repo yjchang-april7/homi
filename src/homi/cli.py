@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import sys
 from os.path import dirname
 
@@ -20,7 +19,7 @@ def cli():
 @click.option("--host", "-h", help="The interface to bind to.")
 @click.option("--port", "-p", default='50051', help="The port to bind to.")
 @click.option('--worker', '-w', default=10, type=int)
-@click.option('--use_uvloop', default=True, type=bool,help="If you don't want uvloop `--uvloop false`")
+@click.option('--use_uvloop', default=True, type=bool, help="If you don't want uvloop `--uvloop false`")
 @click.option('--alts', type=bool, default=False, help='[Experimental] enable alts')
 @click.option('--private_key', '-k', type=click.Path(exists=True, resolve_path=True), help='tls private key')
 @click.option('--certificate', '-c', type=click.Path(exists=True, resolve_path=True), help='tls root certificate')
@@ -36,7 +35,7 @@ def cli():
     type=bool,
     help="Server Debug Mode",
 )
-def run_command(file, port, worker, debug, alts, host=None, private_key=None, certificate=None,use_uvloop=True):
+def run_command(file, port, worker, debug, alts, host=None, private_key=None, certificate=None, use_uvloop=True):
     sys.path.append(dirname(file))
     import importlib.util
 

@@ -1,15 +1,12 @@
-import time
-
 import requests
 
 from homi import App, Server
-from homi.extend.service import reflection_service, health_service
+from homi.extend.service import health_service, reflection_service
 
 try:
     from .helloworld_pb2 import _GREETER
 except Exception:
     from helloworld_pb2 import _GREETER
-
 
 app = App(
     services=[
@@ -21,6 +18,8 @@ app = App(
 service_name = 'helloworld.Greeter'
 
 endpoint = 'https://5fe83520010a670017803dd6.mockapi.io/user'
+
+
 # unary-unary method
 @app.method(service_name)
 def SayHello(name, **kwargs):

@@ -1,4 +1,3 @@
-import inspect
 import logging
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, Generic, List, TypeVar, Union
@@ -109,7 +108,6 @@ class BaseAsyncService(Generic[ConfigType], ABC):
             # else:
             #     self._after_registered_handler(self)
 
-
     def before_server_start_handler(self):
         if self._before_server_start_handler:
             self._before_server_start_handler(self)
@@ -193,7 +191,6 @@ class AsyncApp(BaseAsyncApp):
                 self.add_service_from_descriptor(svc)
             else:
                 self.add_service(svc)
-
 
     @property
     def service_names(self):

@@ -1,12 +1,9 @@
 import unittest
-from time import sleep
 
 import grpc
 
 from . import helloworld_pb2_grpc
 from .async_app import app
-from .async_app import app as async_app
-
 from .helloworld_pb2 import HelloRequest
 from ...homi.test_case import HomiRealServerTestCase
 
@@ -21,7 +18,6 @@ class GreeterTestCase(HomiRealServerTestCase):
     def test_hello_say(self):
 
         channel = grpc.insecure_channel(self.endpoint)
-
 
         stub = helloworld_pb2_grpc.GreeterStub(channel)
         name = 'tom'

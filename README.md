@@ -20,6 +20,8 @@ pip install homi
 - [x] support all grpc service type(unary-unary,unary-stream,stream-unary,stream-stream)
 - [x] TLS support
 - [x] you just return dict type, not grpc object
+- [x] support async grpc server
+- [x] test your server very easy(HomiRealServerTestCase(support sync & async server), HomiTestCase(only sync server))
 
 
 ## Example
@@ -113,6 +115,9 @@ homi run --private_key server.key --certificate server.crt
 
 
 ## Change Logs
+- 0.2.0
+   - Feature
+        - #37 : support AsyncIO API Server! [example](https://github.com/spaceone-dev/homi/tree/master/example/helloworld/async_app.py)
 - 0.1.7
     - Fix Bugs
         - remove HomiRealServerTestCase, HomiTestCase from __init__.py, please import test class direct

@@ -1,8 +1,8 @@
 import unittest
 
 import grpc
-from homi.test_case import HomiTestCase
 
+from homi.test_case import HomiTestCase
 from .app import app
 from .helloworld_pb2 import HelloRequest, _GREETER
 

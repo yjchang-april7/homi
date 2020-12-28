@@ -4,7 +4,6 @@ import logging
 import threading
 import unittest
 from asyncio import Queue as AsyncQueue
-from queue import Queue
 from time import sleep
 from typing import Any, Dict
 
@@ -136,8 +135,8 @@ class HomiRealServerTestCase(unittest.TestCase):
         asyncio.set_event_loop(self.loop)
         self.que = AsyncQueue()
 
-        def run_server(loop,server,q):
-            async def operator(server,q):
+        def run_server(loop, server, q):
+            async def operator(server, q):
                 await server.run(wait=False)
                 await q.get()
                 await server.stop()
@@ -145,11 +144,10 @@ class HomiRealServerTestCase(unittest.TestCase):
 
             loop.run_until_complete(operator(server, q))
 
-
-        self.thread = threading.Thread(target=run_server, args=(self.loop,self.test_server,self.que))
+        self.thread = threading.Thread(target=run_server, args=(self.loop, self.test_server, self.que))
         self.thread.start()
         # todo: find how to wait until on server
-        sleep(0.05)
+        sleep(0.02)
 
     def run_real_server(self, merge_config: dict = None):
         config = merge_config or {}
@@ -167,16 +165,16 @@ class HomiRealServerTestCase(unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.run_real_server()
+
     def server_stop(self):
         if isinstance(self.app, AsyncApp):
-            self.loop.call_soon_threadsafe(self.que.put_nowait,'stop')
+            self.loop.call_soon_threadsafe(self.que.put_nowait, 'stop')
             self.thread.join()
             del self.thread
             self.loop.run_until_complete(self.loop.shutdown_asyncgens())
             self.loop.close()
         else:
             self.test_server.stop()
-
 
     def tearDown(self):
         super().tearDown()
