@@ -102,12 +102,24 @@ def parse_stream_request(request_iterator) -> Dict:
         yield msg
 
 
+async def parse_async_stream_request(request_iterator):
+    async for req in request_iterator:
+        msg = StreamMessage(**json_format.MessageToDict(req, preserving_proto_field_name=True))
+        msg.raw_data = req
+        yield msg
+
+
 def parse_to_dict(input_type, item):
     return json_format.ParseDict(item, input_type()) if isinstance(item, dict) else item
 
 
 def parse_stream_return(input_type, items):
     for item in items:
+        yield parse_to_dict(input_type, item)
+
+
+async def parse_async_stream_return(input_type, items):
+    async for item in items:
         yield parse_to_dict(input_type, item)
 
 
@@ -130,6 +142,44 @@ def warp_handler(method_meta: MethodMetaData, func):
         def wrapper(request, context):
             result = func(parse_stream_request(request), context=context)
             return return_func(result)
+
+    return wrapper
+
+
+def warp_async_handler(method_meta: MethodMetaData, func):
+    sig = signature(func)
+    parameters = tuple(k for k, v in sig._parameters.items() if v.kind.value == 1)
+
+    is_unary_response = method_meta.method_type.is_unary_response
+    is_unary_request = method_meta.method_type.is_unary_request
+
+    if is_unary_response:
+        return_func = partial(parse_to_dict, method_meta.output_type)
+    else:
+        return_func = partial(parse_async_stream_return, method_meta.output_type)
+
+    if is_unary_request:
+        request_parser = partial(parse_request, parameters)
+        if is_unary_response:
+            async def wrapper(request, context):
+                result = func(**request_parser(request), context=context)
+                return return_func(await result)
+        else:
+            async def wrapper(request, context):
+                result = func(**request_parser(request), context=context)
+                async for msg in return_func(result):
+                    yield msg
+
+    else:
+        if is_unary_response:
+            async def wrapper(request, context):
+                result = func(parse_async_stream_request(request), context=context)
+                return return_func(await result)
+        else:
+            async def wrapper(request, context):
+                result = func(parse_async_stream_request(request), context=context)
+                async for msg in return_func(result):
+                    yield msg
 
     return wrapper
 
