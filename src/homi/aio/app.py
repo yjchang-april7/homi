@@ -20,7 +20,6 @@ async def AsyncNotImplementedMethod(request, context):
 class BaseAsyncApp:
     def __init__(self, config: dict = None, **kwargs):
         self._config: dict = config or {}
-        pass
 
     @property
     def config(self):
@@ -129,7 +128,6 @@ class BaseAsyncService(Generic[ConfigType], ABC):
     @abstractmethod
     def add_to_server(self, server):
         raise NotImplementedError('YOU MUST OVERWRITE THIS METHOD!!')
-        pass
 
 
 class AsyncService(Generic[ConfigType], BaseAsyncService[ConfigType]):
