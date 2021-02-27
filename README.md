@@ -115,6 +115,9 @@ homi run --private_key server.key --certificate server.crt
 
 
 ## Change Logs
+- 0.2.1
+  - Feature
+        - 3.6, 3.7 compatibility support
 - 0.2.0
    - Feature
         - #37 : support AsyncIO API Server! [example](https://github.com/spaceone-dev/homi/tree/master/example/helloworld/async_app.py)

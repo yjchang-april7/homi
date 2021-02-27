@@ -19,7 +19,6 @@ def NotImplementedMethod(request, context):
 class BaseApp:
     def __init__(self, config: dict = None, **kwargs):
         self._config: dict = config or {}
-        pass
 
     @property
     def config(self):
