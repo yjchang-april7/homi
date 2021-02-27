@@ -1,9 +1,10 @@
-from typing import TypedDict, Optional, List
+from typing import List, Optional
 
 from grpc_health.v1 import health, health_pb2_grpc
-from grpc_health.v1.health_pb2 import _HEALTH, HealthCheckResponse
+from grpc_health.v1.health_pb2 import HealthCheckResponse, _HEALTH
 from grpc_reflection.v1alpha import reflection
 from grpc_reflection.v1alpha.reflection_pb2 import _SERVERREFLECTION
+from typing_extensions import TypedDict
 
 from ..app import BaseService
 

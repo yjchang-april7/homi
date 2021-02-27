@@ -115,6 +115,8 @@ homi run --private_key server.key --certificate server.crt
 
 
 ## Change Logs
+- 0.2.2
+  - HotFix for TypedDict compatibility issue
 - 0.2.1
   - Feature
         - 3.6, 3.7 compatibility support
