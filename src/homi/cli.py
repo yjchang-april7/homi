@@ -91,6 +91,7 @@ def protoc_command(PROTO_FILES):
     )
 
 cli.add_command(run_command)
+cli.add_command(protoc_command)
 
 if __name__ == '__main__':
     cli()
