@@ -3,6 +3,7 @@ import sys
 from os.path import dirname
 
 import click
+from grpc_tools import protoc
 
 from homi import AsyncServer
 from . import AsyncApp
@@ -76,6 +77,18 @@ def run_command(file, port, worker, debug, alts, host=None, private_key=None, ce
             certificate=certificate
         ).run()
 
+@click.command("protoc", short_help="Run protoc")
+@click.argument("PROTO_FILES", type=click.Path(exists=True, resolve_path=True), default="hello.proto")
+def protoc_command(PROTO_FILES):
+    protoc.main(
+        (
+            '',
+            '-I.',
+            '--python_out=.',
+            '--grpc_python_out=.',
+            PROTO_FILES,
+        )
+    )
 
 cli.add_command(run_command)
 
