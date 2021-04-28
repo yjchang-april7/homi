@@ -79,13 +79,16 @@ def run_command(file, port, worker, debug, alts, host=None, private_key=None, ce
 
 @click.command("protoc", short_help="Run protoc")
 @click.argument("PROTO_FILES", type=click.Path(exists=True, resolve_path=True), default="hello.proto")
-def protoc_command(PROTO_FILES):
+@click.option('--proto_path', '-I', type=click.Path(exists=True, resolve_path=True), help='The directory of proto files', default='.')
+@click.option('--python_out', type=click.Path(exists=True, resolve_path=True), help='The directory of *_pb2.py', default='.')
+@click.option('--grpc_python_out', type=click.Path(exists=True, resolve_path=True), help='The directory of *_grpc.py', default='.')
+def protoc_command(PROTO_FILES, proto_path, python_out, grpc_python_out):
     protoc.main(
         (
             '',
-            '-I.',
-            '--python_out=.',
-            '--grpc_python_out=.',
+            f"-I{proto_path}",
+            f'--python_out={python_out}',
+            f'--grpc_python_out={grpc_python_out}',
             PROTO_FILES,
         )
     )
