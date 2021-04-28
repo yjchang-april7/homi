@@ -78,19 +78,20 @@ def run_command(file, port, worker, debug, alts, host=None, private_key=None, ce
         ).run()
 
 @click.command("protoc", short_help="Run protoc")
-@click.argument("PROTO_FILES", type=click.Path(exists=True, resolve_path=True), default="hello.proto")
+@click.argument("proto_file", type=click.Path(exists=True, resolve_path=True), default="hello.proto")
 @click.option('--proto_path', '-I', type=click.Path(exists=True, resolve_path=True), help='The directory of proto files', default='.')
 @click.option('--python_out', type=click.Path(exists=True, resolve_path=True), help='The directory of *_pb2.py', default='.')
 @click.option('--grpc_python_out', type=click.Path(exists=True, resolve_path=True), help='The directory of *_grpc.py', default='.')
-def protoc_command(PROTO_FILES, proto_path, python_out, grpc_python_out):
+def protoc_command(proto_file, proto_path, python_out, grpc_python_out):
+    sys.path.append(dirname(proto_file))
     protoc.main(
-        (
-            '',
-            f"-I{proto_path}",
+        [
+            'grpc_tools.protoc',
+            f"--proto_path={proto_path}",
             f'--python_out={python_out}',
             f'--grpc_python_out={grpc_python_out}',
-            PROTO_FILES,
-        )
+            proto_file,
+        ]
     )
 
 cli.add_command(run_command)
