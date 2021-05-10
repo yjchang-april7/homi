@@ -85,7 +85,7 @@ def run_command(file, port, worker, debug, alts, host=None, private_key=None, ce
 def protoc_command(proto_files, proto_path, python_out, grpc_python_out):
     include_proto_path = [f"--proto_path={path}" for path in proto_path]
     protoc.main(
-        ['grpc_tools.protoc'] + include_proto_path + [f'--python_out={python_out}', f'--grpc_python_out={grpc_python_out}'] + proto_files
+        ['grpc_tools.protoc'] + include_proto_path + [f'--python_out={python_out}', f'--grpc_python_out={grpc_python_out}'] + list(proto_files)
     )
 
 cli.add_command(run_command)
