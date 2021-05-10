@@ -1,6 +1,7 @@
 import asyncio
 import sys
 from os.path import dirname
+import glob
 
 import click
 from grpc_tools import protoc
@@ -83,9 +84,10 @@ def run_command(file, port, worker, debug, alts, host=None, private_key=None, ce
 @click.option('--python_out', type=click.Path(exists=True, resolve_path=True), help='The directory of *_pb2.py', default='.')
 @click.option('--grpc_python_out', type=click.Path(exists=True, resolve_path=True), help='The directory of *_grpc.py', default='.')
 def protoc_command(proto_file, proto_path, python_out, grpc_python_out):
+    file_list = glob.glob(proto_file)
     include_proto_path = [f"--proto_path={path}" for path in proto_path]
     protoc.main(
-        ['grpc_tools.protoc'] + include_proto_path + [f'--python_out={python_out}', f'--grpc_python_out={grpc_python_out}', proto_file]
+        ['grpc_tools.protoc'] + include_proto_path + [f'--python_out={python_out}', f'--grpc_python_out={grpc_python_out}', file_list]
     )
 
 cli.add_command(run_command)
