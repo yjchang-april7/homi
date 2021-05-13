@@ -1,6 +1,8 @@
 import os
+from typing import List
 
 import grpc
+from grpc_interceptor import ServerInterceptor
 
 from .app import AsyncApp
 from ..exception import ServerSSLConfigError
@@ -16,6 +18,7 @@ class AsyncServer:
                  alts: bool = False,
                  private_key: bytes = None,
                  certificate: bytes = None,
+                 interceptors: List[ServerInterceptor] = None
                  ):
         self.host = host
         self.port = port
@@ -28,6 +31,7 @@ class AsyncServer:
         self.certificate = certificate
         self.server = None
         self._server_credentials = None
+        self.interceptors = interceptors
 
     def load_config_from_env(self):
         pass
@@ -58,7 +62,7 @@ class AsyncServer:
     async def run(self, wait=True):
         if self.debug:
             os.environ['GRPC_VERBOSITY'] = 'debug'
-        self.server = grpc.aio.server()
+        self.server = grpc.aio.server(interceptors=self.interceptors)
         self.app.bind_to_server(self.server)
         self._add_port()
         await self.server.start()

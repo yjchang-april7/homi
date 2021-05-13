@@ -1,7 +1,9 @@
 import os
 from concurrent import futures
+from typing import List
 
 import grpc
+from grpc_interceptor import ServerInterceptor
 
 from .app import App
 from .exception import ServerSSLConfigError
@@ -17,6 +19,7 @@ class Server:
                  alts: bool = False,
                  private_key: bytes = None,
                  certificate: bytes = None,
+                 interceptors: List[ServerInterceptor] = None
                  ):
         self.host = host
         self.port = port
@@ -30,6 +33,7 @@ class Server:
         self.server = None
         self._server_credentials = None
         self.thread_pool = futures.ThreadPoolExecutor(max_workers=self.worker)
+        self.interceptors = interceptors
 
     def load_config_from_env(self):
         pass
@@ -60,7 +64,7 @@ class Server:
     def run(self, wait=True):
         if self.debug:
             os.environ['GRPC_VERBOSITY'] = 'debug'
-        self.server = grpc.server(self.thread_pool)
+        self.server = grpc.server(self.thread_pool, interceptors=self.interceptors)
         self.app.bind_to_server(self.server)
         self._add_port()
         self.server.start()
