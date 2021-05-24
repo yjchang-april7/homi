@@ -90,7 +90,8 @@ def parse_request(parameters, request) -> Dict:
     request_dict = json_format.MessageToDict(request, preserving_proto_field_name=True)
     args = {}
     for p in parameters:
-        args[p] = request_dict.get(p)
+        if p != "context":
+            args[p] = request_dict.get(p)
     args['request'] = request
     return args
 
