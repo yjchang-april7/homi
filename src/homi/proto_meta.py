@@ -161,15 +161,10 @@ def warp_async_handler(method_meta: MethodMetaData, func):
 
     if is_unary_request:
         request_parser = partial(parse_request, parameters)
-        if is_unary_response:
-            async def wrapper(request, context):
-                result = func(**request_parser(request), context=context)
-                return return_func(await result)
-        else:
-            async def wrapper(request, context):
-                result = func(**request_parser(request), context=context)
-                async for msg in return_func(result):
-                    yield msg
+        return_func = partial(parse_to_dict, method_meta.output_type)
+        async def wrapper(request, context):
+            result = func(**request_parser(request), context=context)
+            return return_func(await result)
 
     else:
         if is_unary_response:
